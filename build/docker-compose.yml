@@ -1,0 +1,59 @@
+version: "3.1"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-chat
+    ports:
+      - 80:80
+    volumes:
+      - ..:/go/src/go-chat
+    working_dir: /go/src/go-chat
+    environment:
+      APP_MODE: local
+      PORT: 80
+      DATABASE_TYPE: mysql
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD:
+      DATABASE_NAME: go-chat
+    depends_on:
+      - mysql
+    networks:
+      - go-chat
+    links:
+      - mysql
+    entrypoint: reflex -r '\.go' -s go run ./server/main.go
+  # mysql
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_DATABASE: go-chat
+      TZ: Asia/Ho_Chi_Minh
+    networks:
+      - go-chat
+    hostname: mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_USER=root
+    ports:
+      - 8081:80
+    networks:
+      - go-chat
+    hostname: phpmyadmin
+networks:
+  go-chat: {}
+volumes:
+  mysql: {}
