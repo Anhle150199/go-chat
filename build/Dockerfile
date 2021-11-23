@@ -1,9 +1,9 @@
-FROM golang:1.15
+FROM golang:1.17
 WORKDIR /root
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    locales=2.28-10 \
+    locales \
     && apt-get -y clean \
     && rm -rf /var/lib/apt/lists/*
 

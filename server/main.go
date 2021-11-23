@@ -13,11 +13,9 @@ import (
 func main()  {
 	fmt.Println("Starting server")
 
-	err := database.ConnectDB()
-	if err != nil {
-		log.Fatal("Error connect DB: ", err)
-	}
+	database.ConnectDB()
 	
+
 	r := routes.Setup()
 	port:= ":80"
 
