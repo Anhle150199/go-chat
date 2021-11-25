@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+
+    <title>Login</title>
+</head>
+
+<body>
+    <h2>Login</h2>
+
+    <form action="/login" id="loginForm">
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email">
+
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password">
+        <button type="submit">Login</button>
+    </form>
+    <script>
+        // Attach a submit handler to the form
+        $("#loginForm").submit(function (event) {
+            event.preventDefault();
+
+            // Get some values from elements on the page:
+            var $form = $(this),
+                email = $form.find("input[name='email']").val(),
+                password = $form.find("input[name='password']").val(),
+                url = $form.attr("action");
+
+            // Send the data using post
+            var posting = $.post(url, { email: email, password: password });
+
+            // Put the results in a div
+            posting.done(function (mes) {
+                document.location.href = '/'
+            });
+            posting.fail(function (httpObj, mes) {
+                if (httpObj.status == 401)
+                    alert("Note: Pasword or Email is Valid" )
+                else
+                    alert("Note: 500" + mes)
+            });
+
+        });
+    </script>
+</body>
+
+</html>
