@@ -171,7 +171,10 @@
                             </tr>
                             <tr>
                                 <td valign="bottom" class="text-center">
-                                    <button class=" btn btn-danger w-100">Logout</button>
+                                    <form action="/logout" method="post">
+                                        <button class=" btn btn-danger w-100" type="submit">Logout</button>
+
+                                    </form>
                                 </td>
                             </tr>
                         </table>
@@ -280,7 +283,7 @@
                 $(".user-name").text(nameEdit)
             });
             posting.fail(function (mes) {
-                    alert("Has error: " + mes)
+                alert("Has error: " + mes)
             });
 
         })

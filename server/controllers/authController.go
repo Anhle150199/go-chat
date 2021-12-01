@@ -43,7 +43,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		token, errCreate := jwt.Create(user.Name)
+		token, errCreate := jwt.Create(user.Id)
 
 		if errCreate != nil {
 			utils.JSON(w, 500, "Internal Server Error")
