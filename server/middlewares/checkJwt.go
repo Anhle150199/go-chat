@@ -2,10 +2,9 @@ package middlewares
 
 import (
 	// "errors"
-	"log"
+	// "log"
 	"net/http"
 
-	jwtconfig "github.com/go-chat/server/jwtConfig"
 	// jwtconfig "github.com/go-chat/server/jwtConfig"
 	// "github.com/go-chat/server/utils"
 	// "github.com/gorilla/mux"
@@ -24,11 +23,11 @@ func CheckJwt(next http.HandlerFunc) http.HandlerFunc {
 		// }
 		// tokenJwt := cookie.Value
 		//
-		err := jwtconfig.Verify(w, r)
-		if err != nil {
-			log.Println("has err")
-			http.Redirect(w, r, "/login", http.StatusMovedPermanently)
-		}
+		// err := jwtconfig.Verify(w, r)
+		// if err != nil {
+		// 	log.Println("has err")
+		// 	http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+		// }
 		next(w, r)
 	}
 }

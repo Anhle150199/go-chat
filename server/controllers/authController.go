@@ -54,8 +54,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Value: token,
 			Expires: time.Now().Add(120 * time.Hour),
 		})
-		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
-		utils.JSON(w, 201, "Login Succesfully")
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		// utils.JSON(w, 201, "Login Succesfully")
 
 	}
 }

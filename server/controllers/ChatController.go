@@ -17,7 +17,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusMovedPermanently)
 	}
 	varmap := map[string]interface{}{
-        "user"
+        "user": user.Name,
     }
 
 	tpl, _ := template.ParseGlob("front-end/view/*.html")
