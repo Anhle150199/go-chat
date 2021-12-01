@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"html/template"
-	// "log"
 	"net/http"
 	"time"
 
@@ -17,7 +16,7 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
-		tpl, _ := template.ParseGlob("front-end/view/*.html")
+		tpl, _ := template.ParseGlob("public/view/*.html")
 		tpl.ExecuteTemplate(w, "login.html", nil)
 	} else {
 		r.ParseForm()
@@ -49,20 +48,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			utils.JSON(w, 500, "Internal Server Error")
 			return
 		}
+		// w.WriteHeader(http.StatusProxyAuthRequired)
 		http.SetCookie(w, &http.Cookie{
-			Name: "logged-in",
-			Value: token,
+			Name:    "logged-in",
+			Value:   token,
 			Expires: time.Now().Add(120 * time.Hour),
 		})
-		http.Redirect(w, r, "/", http.StatusMovedPermanently)
-		// utils.JSON(w, 201, "Login Succesfully")
+		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		utils.JSON(w, 200, "Login Succesfully")
 
 	}
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		tpl, _ := template.ParseGlob("front-end/view/*.html")
+		tpl, _ := template.ParseGlob("public/view/*.html")
 		tpl.ExecuteTemplate(w, "register.html", nil)
 	} else {
 		r.ParseForm()
@@ -116,10 +116,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Logout(w http.ResponseWriter, r *http.Request)  {
+func Logout(w http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
-		Name:   "logged-in",
-		Value:  "",
+		Name:    "logged-in",
+		Value:   "",
 		Expires: time.Now().Add(0 * time.Second),
 	}
 	http.SetCookie(w, cookie)

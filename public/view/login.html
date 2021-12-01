@@ -37,7 +37,8 @@
 
             // Put the results in a div
             posting.done(function (mes) {
-                document.location.href = '/'
+                console.log(mes)
+                document.location.href = '/chat'
             });
             posting.fail(function (httpObj, mes) {
                 if (httpObj.status == 401)

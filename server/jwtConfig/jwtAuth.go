@@ -1,13 +1,9 @@
 package jwtconfig
 
 import (
-	// "fmt"
 	"log"
 	"net/http"
 	"strconv"
-
-	// "os"
-	// "strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -19,9 +15,8 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-
 func Create(idUser uint) (string, error) {
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(120 * time.Hour)
 	claims := &Claims{
 		Id: idUser,
 		StandardClaims: jwt.StandardClaims{

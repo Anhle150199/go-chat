@@ -38,6 +38,10 @@ func CreateUser(name, email, password string) error {
 	_, err := database.DB.Exec("INSERT INTO users (name, email, password) VALUES (?,?,?)", name, email, password)
 	return err
 }
+func EditUserName(name string, id string) (error) {
+	_, err := database.DB.Exec("UPDATE users SET name=? WHERE id=?", name, id)
+	return err
+}
 func Hash(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
