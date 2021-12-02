@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"html/template"
+	// "io/ioutil"
 	"log"
 
 	// "log"
@@ -18,7 +19,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("User").(models.User)
 	varmap := map[string]interface{}{
 		"userName": user.Name,
-		"userId": user.Id,
+		"userId":   user.Id,
 	}
 
 	tpl, _ := template.ParseGlob("public/view/*.html")
@@ -30,7 +31,7 @@ func EditName(w http.ResponseWriter, r *http.Request) {
 	id := r.PostFormValue("id")
 	name := r.PostFormValue("name")
 	// validator data
-	if govalidator.IsNull(name) || govalidator.IsNull(id){
+	if govalidator.IsNull(name) || govalidator.IsNull(id) {
 		utils.JSON(w, 400, "Data can not empty")
 		return
 	}
@@ -41,18 +42,31 @@ func EditName(w http.ResponseWriter, r *http.Request) {
 		utils.JSON(w, 400, "Name is exist")
 		return
 	}
-	err:=models.EditUserName(name,id)
+	err := models.EditUserName(name, id)
 	if err != nil {
 		utils.JSON(w, 400, "Has error")
-		return 
+		return
 	}
 	log.Println("Edited: ", name)
-	// varmap := map[string]interface{}{
-	// 	"userName": name,
-	// 	"userId": id,
-	// }
-	// tpl, _ := template.ParseGlob("public/view/*.html")
-	// tpl.ExecuteTemplate(w, "index.html", varmap)
 	utils.JSON(w, 200, "Edit Succesfully")
-
 }
+
+// func SendMessage(w http.ResponseWriter, r *http.Request) {
+// 	r.ParseForm()
+// 	id := r.PostFormValue("id")
+// 	message := r.PostFormValue("message")
+// 	mediaFile, handler, err := r.FormFile("mediaFile")
+// 	if err != nil {
+// 		utils.JSON(w, 400, "File error! ")
+// 		return
+// 	}
+// 	id = models.Santize(id)
+// 	message = models.Santize(message)
+
+// 	file, err := ioutil.TempFile("medias", handler.Filename)
+// 	if err != nil {
+// 		utils.JSON(w, 400, "File error! ")
+// 		return
+// 	}
+
+// }
