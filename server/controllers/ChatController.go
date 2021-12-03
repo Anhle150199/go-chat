@@ -51,22 +51,30 @@ func EditName(w http.ResponseWriter, r *http.Request) {
 	utils.JSON(w, 200, "Edit Succesfully")
 }
 
-// func SendMessage(w http.ResponseWriter, r *http.Request) {
-// 	r.ParseForm()
-// 	id := r.PostFormValue("id")
-// 	message := r.PostFormValue("message")
-// 	mediaFile, handler, err := r.FormFile("mediaFile")
-// 	if err != nil {
-// 		utils.JSON(w, 400, "File error! ")
-// 		return
-// 	}
-// 	id = models.Santize(id)
-// 	message = models.Santize(message)
+func SendMessage(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	id := r.PostFormValue("id")
+	message := r.PostFormValue("message")
+	// mediaFile, handler, err := r.FormFile("mediaFile")
+	// if err != nil {
+	// 	utils.JSON(w, 400, "File error! ")
+	// 	return
+	// }
+	id = models.Santize(id)
+	message = models.Santize(message)
+	err:=models.InsertMessage(id, message)
+	if err != nil {
+		// mess:= "has an error: ". err
 
-// 	file, err := ioutil.TempFile("medias", handler.Filename)
-// 	if err != nil {
-// 		utils.JSON(w, 400, "File error! ")
-// 		return
-// 	}
+		utils.JSON(w, 400, err)
+		return 
+	}
+	utils.JSON(w, 200, "Send Succesfully")
+	// file, err := ioutil.TempFile("medias", handler.Filename)
+	// if err != nil {
+	// 	utils.JSON(w, 400, "File error! ")
+	// 	return
+	// }
 
-// }
+
+}

@@ -21,6 +21,7 @@ func Setup() *mux.Router {
 	chatRouter.Use(middlewares.CheckJwt)
 	chatRouter.HandleFunc("/chat", controllers.Index).Methods("GET")
 	chatRouter.HandleFunc("/edit-name", controllers.EditName).Methods("POST")
+	chatRouter.HandleFunc("/sent-message", controllers.SendMessage).Methods("POST")
 
 	return r
 }

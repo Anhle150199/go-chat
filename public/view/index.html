@@ -226,8 +226,8 @@
                 url = $form.attr("action"),
                 userId = $("#id").val(),
                 msg = $("#message-input").val(),
-                photo = $("#photo").prop('file')[0],
-                video = $("#video").prop('file')[0];
+                photo = $("#photo").val(),
+                video = $("#video").val();
 
             let media = "";
             if (photo != "") {
@@ -235,13 +235,13 @@
             } else if (video != "") {
                 media = video;
             }
-            let posting = $.post(url, { id: userId, message: msg, mediaFile: media });
+            let posting = $.post(url, { id: userId, message: msg });
             posting.done(function (mes) {
                 console.log(mes)
 
             });
             posting.fail(function (request, status, error) {
-                alert(request.responseText);
+                console.log(request.responseText);
             });
         })
     </script>
