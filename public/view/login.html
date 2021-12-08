@@ -13,7 +13,7 @@
 <body>
     <h2>Login</h2>
 
-    <form action="/login" id="loginForm">
+    <form action="/user/login" id="loginForm">
         <label for="email">Email:</label>
         <input type="email" name="email" id="email">
 
@@ -38,7 +38,7 @@
             // Put the results in a div
             posting.done(function (mes) {
                 console.log(mes)
-                document.location.href = '/chat'
+                window.location.href = '/chat/chat'
             });
             posting.fail(function (httpObj, mes) {
                 if (httpObj.status == 401)

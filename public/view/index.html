@@ -78,7 +78,7 @@
                             </tr>
                             <tr>
                                 <td valign="bottom" class="text-center">
-                                    <form action="/logout" method="post">
+                                    <form action="/user/logout" method="post">
                                         <button class=" btn btn-danger w-100" type="submit">Logout</button>
 
                                     </form>
@@ -108,32 +108,42 @@
                             <tr>
                                 <td>
                                     <div class="position-relative">
-                                        <div class="chat-messages p-4">
+                                        <div class="chat-messages p-4" id="box-message">
 
-
-                                            <div class="chat-message-right pb-4">
-                                                <!-- <div>
-                                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                                                        class="rounded-circle mr-1" alt="Chris Wood" width="40"
-                                                        height="40">
-                                                    <div class="text-muted small text-nowrap mt-2">2:33 am</div>
-                                                </div> -->
+                                            {{range .allMessage}}
+                                            {{if eq .User_id $.userId}}
+                                            <div class="chat-message-right pb-4" id="box-message-{{.Id}}">
                                                 <div class="flex-shrink-1 rounded py-2 px-3 mr-3 bg-primary text-white">
-                                                    <div class="font-weight-bold mb-1">You <span>2:33 am</span></div>
-                                                    Lorem ipsum dolor sit amet, vis erat denique in, dicunt prodesset te
-                                                    vix.
+                                                    <div class="font-weight-bold mb-1">You <span>{{.Updated_at}}</span>
+                                                    </div>
+                                                    <span id="msg-{{.Id}}">{{.Message_content}}</span>
+                                                </div>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn-more-message btn dropdown-toggle "
+                                                        data-bs-toggle="dropdown" aria-expanded="false"
+                                                        style="box-shadow: none;">
+                                                    </button>
+                                                    <ul class="dropdown-menu" style="min-width: fit-content; ">
+                                                        <li><a class="dropdown-item" onclick="editMessage({{.Id}})"><i
+                                                                    class="bi bi-pencil-square"></i></a></li>
+                                                        <li><a class="dropdown-item" onclick="deleteMessage({{.Id}})"><i
+                                                                    class="bi bi-trash"></i></a></li>
+                                                    </ul>
                                                 </div>
                                             </div>
-
+                                            {{else}}
                                             <div class="chat-message-left pb-4">
                                                 <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
-                                                    <div class="font-weight-bold mb-1">Sharon Lessman <span
-                                                            class="text-muted small text-nowrap mt-2">2:34 am</span>
+                                                    <div class="font-weight-bold mb-1">{{.User_name}} <span
+                                                            class="text-muted small text-nowrap mt-2">{{.Updated_at}}</span>
                                                     </div>
-                                                    Sit meis deleniti eu, pri vidit meliore docendi ut, an eum erat
-                                                    animal commodo.
+                                                    {{.Message_content}}
                                                 </div>
                                             </div>
+                                            {{end}}
+
+                                            {{end}}
+
                                         </div>
                                     </div>
                                 </td>
@@ -143,12 +153,15 @@
                                 <td valign="bottom">
                                     <button class="btn" id="btn-photo"><i class="bi bi-image"></i></button>
                                     <button class="btn" id="btn-video"><i class="bi bi-camera-video"></i></button>
+                                    <button class="btn float-end" id="cancel-edit-message" hidden><i
+                                            class="bi bi-x-circle-fill text-danger"></i></button>
+                                    <input type="file" name="photo" id="photo" value="" accept="image/*" hidden>
+                                    <input type="file" name="video" id="video" value="" accept="video/*" hidden>
 
-                                    <form action="/sent-message" id="mesForm" class="input-group"
+                                    <form action="/chat/sent-message" id="mesForm" class="input-group"
                                         enctype="multipart/form-data">
-                                        <input type="file" name="photo" id="photo" value="" accept="image/*" hidden>
-                                        <input type="file" name="video" id="video" value="" accept="video/*" hidden>
                                         <input type="text" name="id" id="id" value="{{.userId}}" hidden required>
+                                        <input type="text" name="idMessage" id="idMessage" value="0" hidden>
 
                                         <input type="text" class="form-control" placeholder="Type your message"
                                             id="message-input">
@@ -168,12 +181,15 @@
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
     <script>
+        $('#box-message').scrollTop($('#box-message')[0].scrollHeight);
+
         $("#btn-photo").click(function () {
             $("#photo").click();
         })
         $("#btn-video").click(function () {
             $("#video").click()
         })
+        // click video
         $("#video").change(function () {
             let photo = $("#photo").val("");
             let match = ["mp4", "mov"];
@@ -188,6 +204,8 @@
             console.log("photo:" + photo);
             console.log("video:" + $("#video").val());
         })
+
+        // click photo
         $("#photo").change(function () {
             let video = $("#video").val("");
 
@@ -205,6 +223,8 @@
             console.log($("#photo").val());
 
         })
+
+        // edit user name
         $("#btn-edit-name").click(function () {
             let nameEdit = $("#name-edit").val(), idUser = $("#id").val();
             // Send the data using post
@@ -220,6 +240,8 @@
                 alert(request.responseText);
             });
         })
+
+        // send message
         $("#mesForm").submit(function (event) {
             event.preventDefault();
             let $form = $(this),
@@ -228,22 +250,58 @@
                 msg = $("#message-input").val(),
                 photo = $("#photo").val(),
                 video = $("#video").val();
+            let data = {};
 
-            let media = "";
-            if (photo != "") {
-                media = photo;
-            } else if (video != "") {
-                media = video;
+            if (url == "/chat/edit-message") {
+                let idMsg = $("#idMessage").val();
+                console.log(idMsg);
+                data = { idMessage: idMsg, newMessage: msg }
+            } else {
+                data = { id: userId, message: msg }
             }
-            let posting = $.post(url, { id: userId, message: msg });
+            console.log(data);
+            let posting = $.post(url, data);
+
             posting.done(function (mes) {
                 console.log(mes)
-
+                location.reload();
             });
             posting.fail(function (request, status, error) {
                 console.log(request.responseText);
             });
         })
+
+        // edit message
+        const editMessage = (id) => {
+            let message = $("#msg-" + id).text();
+            $("#message-input").val(message);
+            $("#mesForm").attr("action", "/chat/edit-message");
+            $("#idMessage").val(id);
+            $("#cancel-edit-message").attr('hidden', false);;
+        }
+
+        // button cancel edit message
+        $("#cancel-edit-message").click(function () {
+            $("#message-input").val("");
+            $("#mesForm").attr("action", "/chat/sent-message");
+            $("#idMessage").val("");
+            $("#cancel-edit-message").attr('hidden', true);;
+        })
+
+        // delete message
+        const deleteMessage = (id) => {
+            url= "/chat/delete-message"
+            let posting = $.post(url, {idMessage: id});
+
+            posting.done(function (mes) {
+                console.log(mes)
+                location.reload();
+            });
+            posting.fail(function (request, status, error) {
+                console.log(request.responseText);
+            });
+
+        }
     </script>
 </body>
 

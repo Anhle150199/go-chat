@@ -17,9 +17,12 @@ import (
 func Index(w http.ResponseWriter, r *http.Request) {
 
 	user := r.Context().Value("User").(models.User)
+	allMessage, _ := models.GetAllMessage()
+	
 	varmap := map[string]interface{}{
 		"userName": user.Name,
 		"userId":   user.Id,
+		"allMessage": allMessage,
 	}
 
 	tpl, _ := template.ParseGlob("public/view/*.html")
@@ -47,34 +50,63 @@ func EditName(w http.ResponseWriter, r *http.Request) {
 		utils.JSON(w, 400, "Has error")
 		return
 	}
+	err = models.EditUserNameMessage(id, "user_name", name)
+	if err != nil {
+		utils.JSON(w, 400, "Has error")
+		return
+	}
 	log.Println("Edited: ", name)
 	utils.JSON(w, 200, "Edit Succesfully")
 }
 
 func SendMessage(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("User").(models.User)
 	r.ParseForm()
 	id := r.PostFormValue("id")
 	message := r.PostFormValue("message")
-	// mediaFile, handler, err := r.FormFile("mediaFile")
-	// if err != nil {
-	// 	utils.JSON(w, 400, "File error! ")
-	// 	return
-	// }
 	id = models.Santize(id)
 	message = models.Santize(message)
-	err:=models.InsertMessage(id, message)
+	err:=models.InsertMessage(id,user.Name, message)
 	if err != nil {
-		// mess:= "has an error: ". err
-
 		utils.JSON(w, 400, err)
 		return 
 	}
 	utils.JSON(w, 200, "Send Succesfully")
-	// file, err := ioutil.TempFile("medias", handler.Filename)
-	// if err != nil {
-	// 	utils.JSON(w, 400, "File error! ")
-	// 	return
-	// }
 
+}
+
+func SendFileMedia(w http.ResponseWriter, r *http.Request)  {
+	
+}
+
+func EditMessage(w http.ResponseWriter, r *http.Request)  {
+	log.Println("Editting ....")
+	r.ParseForm()
+	idMessage := r.PostFormValue("idMessage")
+	newMessage := r.PostFormValue("newMessage")
+
+	idMessage = models.Santize(idMessage)
+	newMessage = models.Santize(newMessage)
+	log.Println("id Mess: ",idMessage)
+	log.Println("new mess", newMessage)
+	err := models.EditMessage(idMessage, "message_content", newMessage)
+	if err != nil {
+		utils.JSON(w, 400, err)
+		return 
+	}
+	utils.JSON(w, 200, "Edit Succesfully")
+}
+func DeleteMessage(w http.ResponseWriter, r *http.Request)  {
+	log.Println("Editting ....")
+	r.ParseForm()
+	idMessage := r.PostFormValue("idMessage")
+	idMessage = models.Santize(idMessage)
+
+	err := models.DeleteMessage(idMessage)
+	if err != nil {
+		utils.JSON(w, 400, err)
+		return 
+	}
+	utils.JSON(w, 200, "Delete Succesfully")
 
 }

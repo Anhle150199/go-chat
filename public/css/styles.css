@@ -29,7 +29,7 @@ body {
 .chat-messages {
     display: flex;
     flex-direction: column;
-    max-height: 800px;
+    max-height: 70vh;
     overflow-y: scroll
 }
 
@@ -64,4 +64,10 @@ body {
 
 .border-top {
     border-top: 1px solid #dee2e6 !important;
+}
+
+.btn-more-message{
+    box-shadow: none;
+    padding: 0;
+    margin: 10px;
 }

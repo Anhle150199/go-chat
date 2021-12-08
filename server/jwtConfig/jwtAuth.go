@@ -32,14 +32,7 @@ func Create(idUser uint) (string, error) {
 func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
 	c, err := r.Cookie("logged-in")
 	if err != nil {
-		// if err == http.ErrNoCookie {
-		// 	// If the cookie is not set, return an unauthorized status
-		// 	w.WriteHeader(http.StatusUnauthorized)
-		// 	return
-		// }
-		// // For any other type of error, return a bad request status
-		// w.WriteHeader(http.StatusBadRequest)
-		// return
+		log.Println("no cookie")
 		return models.User{}, err
 	}
 
@@ -52,16 +45,8 @@ func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
 		return jwtKey, nil
 	})
 	if err != nil {
-		// if err == jwt.ErrSignatureInvalid {
-		// 	w.WriteHeader(http.StatusUnauthorized)
-		// 	return
-		// }
-		// w.WriteHeader(http.StatusBadRequest)
 		return models.User{}, err
 	}
-	// if !tkn.Valid {
-	// 	return " tkn"
-	// }
 	log.Println("err: ", tkn)
 	idUser:= strconv.FormatUint(uint64(claims.Id), 10)
 

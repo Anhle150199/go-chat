@@ -111,7 +111,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// utils.JSON(w, 201, "Register Succesfully")
-		http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+		http.Redirect(w, r, "/user/login", http.StatusMovedPermanently)
 
 	}
 }
@@ -123,5 +123,5 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(0 * time.Second),
 	}
 	http.SetCookie(w, cookie)
-	http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+	http.Redirect(w, r, "/user/login", http.StatusMovedPermanently)
 }
