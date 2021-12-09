@@ -1,62 +1,60 @@
 package jwtconfig
 
 import (
-	"fmt"
+	"log"
 	"net/http"
-	"os"
-	"strings"
+	"strconv"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/go-chat/server/models"
 )
+var jwtKey = []byte("my_secret_key")
+type Claims struct {
+	Id uint `json:"id"`
+	jwt.StandardClaims
+}
 
-func Create(username string) (string, error) {
-	claims := jwt.MapClaims{}
-	claims["authorized"] = true
-	claims["username"] = username
-	// set time for token
-	claims["exp"] = time.Now().Add(120 * time.Hour)
+func Create(idUser uint) (string, error) {
+	expirationTime := time.Now().Add(120 * time.Hour)
+	claims := &Claims{
+		Id: idUser,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("SECRET_JWT")))
+	tokenString, err := token.SignedString(jwtKey)
+
+	return tokenString, err
 }
 
-func Verify(r *http.Request) error {
-	tokenString := Extract(r)
-	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(os.Getenv("SECRET_JWT")), nil
+func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
+	c, err := r.Cookie("logged-in")
+	if err != nil {
+		log.Println("no cookie")
+		return models.User{}, err
+	}
+
+	// Get the JWT string from the cookie
+	tknStr := c.Value
+	log.Println(tknStr)
+	claims := &Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
 	})
+	if err != nil {
+		return models.User{}, err
+	}
+	log.Println("err: ", tkn)
+	idUser:= strconv.FormatUint(uint64(claims.Id), 10)
+
+	user, err := models.FindUser("id", idUser, 1)
 
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
-	return nil
-}
-
-func Extract(r *http.Request) string {
-	bearerToken := r.Header.Get("Authorization")
-	return strings.Split(bearerToken, " ")[1]
-}
-
-func ExtractUsernameFromToken(r *http.Request) (string, error) {
-	var username string
-	tokenString := Extract(r)
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(os.Getenv("SECRET_JWT")), nil
-	})
-
-	if err != nil {
-		return username, err
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		username = fmt.Sprintf("%v", claims["username"])
-	}
-
-	return username, nil
+	log.Println(user)
+	return user, nil
 }

@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"html/template"
-	// "log"
 	"net/http"
 	"time"
 
@@ -17,7 +16,7 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
-		tpl, _ := template.ParseGlob("front-end/*.html")
+		tpl, _ := template.ParseGlob("public/view/*.html")
 		tpl.ExecuteTemplate(w, "login.html", nil)
 	} else {
 		r.ParseForm()
@@ -33,7 +32,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		user, err := models.FindUser("email", email, 1)
 
 		if err != nil {
-			utils.JSON(w, 400, "Email or Password incorrect")
+			utils.JSON(w, 401, "Email or Password incorrect")
 			return
 		}
 
@@ -43,25 +42,27 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		token, errCreate := jwt.Create(user.Name)
+		token, errCreate := jwt.Create(user.Id)
 
 		if errCreate != nil {
 			utils.JSON(w, 500, "Internal Server Error")
 			return
 		}
+		// w.WriteHeader(http.StatusProxyAuthRequired)
 		http.SetCookie(w, &http.Cookie{
-			Name: "logged-in",
-			Value: token,
+			Name:    "logged-in",
+			Value:   token,
 			Expires: time.Now().Add(120 * time.Hour),
 		})
-		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
+		utils.JSON(w, 200, "Login Succesfully")
 
 	}
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		tpl, _ := template.ParseGlob("front-end/*.html")
+		tpl, _ := template.ParseGlob("public/view/*.html")
 		tpl.ExecuteTemplate(w, "register.html", nil)
 	} else {
 		r.ParseForm()
@@ -109,6 +110,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.JSON(w, 201, "Register Succesfully")
+		// utils.JSON(w, 201, "Register Succesfully")
+		http.Redirect(w, r, "/user/login", http.StatusMovedPermanently)
+
 	}
+}
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	cookie := &http.Cookie{
+		Name:    "logged-in",
+		Value:   "",
+		Expires: time.Now().Add(0 * time.Second),
+	}
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/user/login", http.StatusMovedPermanently)
 }
