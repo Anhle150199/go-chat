@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/asaskevich/govalidator"
 )
 
+// Login
 func Login(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
@@ -52,6 +54,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{
 			Name:    "logged-in",
 			Value:   token,
+			Path:    "/",
+			HttpOnly: true,
 			Expires: time.Now().Add(120 * time.Hour),
 		})
 		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
@@ -60,6 +64,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Create User
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		tpl, _ := template.ParseGlob("public/view/*.html")
@@ -110,16 +115,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// utils.JSON(w, 201, "Register Succesfully")
-		http.Redirect(w, r, "/user/login", http.StatusMovedPermanently)
-
+		utils.JSON(w, 201, "Register Succesfully")
 	}
 }
 
+// Logout 
 func Logout(w http.ResponseWriter, r *http.Request) {
+	log.Println("Logouting ...")
 	cookie := &http.Cookie{
 		Name:    "logged-in",
 		Value:   "",
+		Path:    "/",
+		HttpOnly: true,
 		Expires: time.Now().Add(0 * time.Second),
 	}
 	http.SetCookie(w, cookie)

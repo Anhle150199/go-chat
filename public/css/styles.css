@@ -47,7 +47,10 @@ body {
     flex-direction: row-reverse;
     margin-left: auto
 }
-
+.media-show{
+    max-width: 300px;
+    height: auto;
+}
 .py-3 {
     padding-top: 1rem !important;
     padding-bottom: 1rem !important;

@@ -1,27 +1,31 @@
 package controllers
 
 import (
+	// "math/rand"
 	"html/template"
-	// "io/ioutil"
+	"io"
+	"os"
+	"strconv"
+
 	"log"
 
-	// "log"
 	"net/http"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/go-chat/server/models"
 	"github.com/go-chat/server/utils"
-	// jwtconfig "github.com/go-chat/server/jwtConfig"
+	"github.com/nouney/randomstring"
 )
 
+// Open home Go-Chat
 func Index(w http.ResponseWriter, r *http.Request) {
 
 	user := r.Context().Value("User").(models.User)
 	allMessage, _ := models.GetAllMessage()
-	
+
 	varmap := map[string]interface{}{
-		"userName": user.Name,
-		"userId":   user.Id,
+		"userName":   user.Name,
+		"userId":     user.Id,
 		"allMessage": allMessage,
 	}
 
@@ -29,6 +33,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "index.html", varmap)
 }
 
+// Edit user name
 func EditName(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	id := r.PostFormValue("id")
@@ -59,6 +64,7 @@ func EditName(w http.ResponseWriter, r *http.Request) {
 	utils.JSON(w, 200, "Edit Succesfully")
 }
 
+// Sent messages
 func SendMessage(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("User").(models.User)
 	r.ParseForm()
@@ -66,20 +72,79 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 	message := r.PostFormValue("message")
 	id = models.Santize(id)
 	message = models.Santize(message)
-	err:=models.InsertMessage(id,user.Name, message)
+	err := models.InsertMessage(id, user.Name, message)
 	if err != nil {
 		utils.JSON(w, 400, err)
-		return 
+		return
 	}
 	utils.JSON(w, 200, "Send Succesfully")
 
 }
 
-func SendFileMedia(w http.ResponseWriter, r *http.Request)  {
-	
+// Upload file media: image and video
+func UploadFile(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("User").(models.User)
+
+	log.Println("Uploading .....")
+	// 32 MB is the default used by FormFile
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	file, handler, err := r.FormFile("file")
+
+	if err != nil {
+		utils.JSON(w, 400, err)
+		return
+	}
+	defer file.Close()
+	log.Printf("Uploaded File: %+v\n", handler.Filename)
+	log.Printf("File Size: %+v\n", handler.Size)
+	log.Printf("MIME Header: %+v\n", handler.Header)
+
+	err = os.MkdirAll("public/medias", os.ModePerm)
+	if err != nil {
+		utils.JSON(w, 400, err)
+		return
+	}
+
+	str := randomstring.Generate(8)
+	mediaFileName := str + "-" + handler.Filename
+	mediafileType := handler.Header["Content-Type"][0]
+	var messageType string
+	if mediafileType == "image/png" || mediafileType == "image/jpg" || mediafileType == "image/gif" || mediafileType == "image/jpeg" {
+		messageType = "image"
+	} else if mediafileType == "video/mp4" || mediafileType == "video/mov" {
+		messageType = "video"
+	} else {
+		utils.JSON(w, 400, "error: Type of file is Valid")
+		return
+	}
+
+	dst, err := os.Create("public/medias/" + mediaFileName)
+	if err != nil {
+		utils.JSON(w, 400, err)
+		return
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		utils.JSON(w, 400, err)
+		return
+	}
+	err = models.UploadFile(strconv.Itoa(int(user.Id)), user.Name, mediaFileName, messageType)
+	if err != nil {
+		utils.JSON(w, 400, err)
+		return
+	}
+	utils.JSON(w, 200, "Upload Succesfully")
+
 }
 
-func EditMessage(w http.ResponseWriter, r *http.Request)  {
+// Edit content message
+func EditMessage(w http.ResponseWriter, r *http.Request) {
 	log.Println("Editting ....")
 	r.ParseForm()
 	idMessage := r.PostFormValue("idMessage")
@@ -87,25 +152,41 @@ func EditMessage(w http.ResponseWriter, r *http.Request)  {
 
 	idMessage = models.Santize(idMessage)
 	newMessage = models.Santize(newMessage)
-	log.Println("id Mess: ",idMessage)
+	log.Println("id Mess: ", idMessage)
 	log.Println("new mess", newMessage)
 	err := models.EditMessage(idMessage, "message_content", newMessage)
 	if err != nil {
 		utils.JSON(w, 400, err)
-		return 
+		return
 	}
 	utils.JSON(w, 200, "Edit Succesfully")
 }
-func DeleteMessage(w http.ResponseWriter, r *http.Request)  {
-	log.Println("Editting ....")
+
+// Delete message
+func DeleteMessage(w http.ResponseWriter, r *http.Request) {
+	log.Println("Deleting ....")
 	r.ParseForm()
 	idMessage := r.PostFormValue("idMessage")
 	idMessage = models.Santize(idMessage)
 
-	err := models.DeleteMessage(idMessage)
+	message, err := models.GetOneMessage(idMessage)
 	if err != nil {
 		utils.JSON(w, 400, err)
-		return 
+		return
+	}
+
+	if message.Media_file_name != "" {
+		err = os.Remove("public/medias/" + message.Media_file_name)
+		if err != nil {
+			utils.JSON(w, 400, err)
+			return
+		}
+	}
+
+	err = models.DeleteMessage(idMessage)
+	if err != nil {
+		utils.JSON(w, 400, err)
+		return
 	}
 	utils.JSON(w, 200, "Delete Succesfully")
 

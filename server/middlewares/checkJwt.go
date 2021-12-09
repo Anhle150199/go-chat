@@ -17,7 +17,7 @@ func CheckJwt(next http.Handler) http.Handler {
 
 		if err != nil {
 			log.Println("Verify fail!!: ", err)
-			http.Redirect(w, r, "user/login", http.StatusMovedPermanently)
+			http.Redirect(w, r, "/user/login", http.StatusMovedPermanently)
 		}
 		context := context.WithValue(r.Context(), "User", user)
 		r = r.WithContext(context)
