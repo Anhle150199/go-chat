@@ -31,6 +31,11 @@ func Create(idUser uint) (string, error) {
 
 func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
 	c, err := r.Cookie("logged-in")
+	for _, cookie := range r.Cookies() {
+        log.Println( cookie.Name)
+    }
+
+	// log.Println(c)
 	if err != nil {
 		log.Println("no cookie")
 		return models.User{}, err
@@ -38,7 +43,7 @@ func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
 
 	// Get the JWT string from the cookie
 	tknStr := c.Value
-	log.Println(tknStr)
+	// log.Println(tknStr)
 	claims := &Claims{}
 
 	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
@@ -47,7 +52,7 @@ func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
 	if err != nil {
 		return models.User{}, err
 	}
-	log.Println("err: ", tkn)
+	log.Println("tkn: ", tkn)
 	idUser:= strconv.FormatUint(uint64(claims.Id), 10)
 
 	user, err := models.FindUser("id", idUser, 1)
@@ -55,6 +60,6 @@ func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
 	if err != nil {
 		return models.User{}, err
 	}
-	log.Println(user)
+	// log.Println(user)
 	return user, nil
 }

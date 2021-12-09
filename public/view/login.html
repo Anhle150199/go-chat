@@ -6,43 +6,59 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
 
+    <link rel="stylesheet" href="/public/css/auth.css">
     <title>Login</title>
 </head>
 
 <body>
-    <h2>Login</h2>
 
-    <form action="/user/login" id="loginForm">
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email">
+    <div class="container">
+        <div class="row">
+            <div class="col ">
+                <div class="auth-box text-center  rounded shadow  bg-light">
+                    <h1><strong>Login</strong></h1>
 
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password">
-        <button type="submit">Login</button>
-    </form>
+                    <form action="/user/login" id="loginForm" class="text-start">
+                        <div class="mb-3 ">
+                            <label for="email" class="form-label"> Email:</label>
+                            <input type="email" class="form-control" name="email" id="email"
+                                aria-describedby="emailHelpId" placeholder="Email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label"> Password:</label>
+                            <input type="password" class="form-control" name="password" id="password"
+                                aria-describedby="emailHelpId" placeholder="Password">
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">Login</button>
+                    </form>
+                    <!-- <div > -->
+                    <p class=" link-redirect">Haven't account ? <a href="/user/register">Register</a></p>
+                    <!-- </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Attach a submit handler to the form
         $("#loginForm").submit(function (event) {
             event.preventDefault();
-
-            // Get some values from elements on the page:
             var $form = $(this),
                 email = $form.find("input[name='email']").val(),
                 password = $form.find("input[name='password']").val(),
                 url = $form.attr("action");
 
-            // Send the data using post
             var posting = $.post(url, { email: email, password: password });
-
-            // Put the results in a div
             posting.done(function (mes) {
                 console.log(mes)
-                window.location.href = '/chat/chat'
+                window.location.href = '/chat/'
             });
             posting.fail(function (httpObj, mes) {
                 if (httpObj.status == 401)
-                    alert("Note: Pasword or Email is Valid" )
+                    alert("Note: Pasword or Email is Valid")
                 else
                     alert("Note: 500" + mes)
             });

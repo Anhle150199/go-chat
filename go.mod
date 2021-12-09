@@ -11,3 +11,5 @@ require (
 )
 
 require github.com/dgrijalva/jwt-go v3.2.0+incompatible
+
+require github.com/nouney/randomstring v0.0.0-20180330205616-1374daa59f01 // indirect

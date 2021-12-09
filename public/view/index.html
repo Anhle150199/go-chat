@@ -114,9 +114,17 @@
                                             {{if eq .User_id $.userId}}
                                             <div class="chat-message-right pb-4" id="box-message-{{.Id}}">
                                                 <div class="flex-shrink-1 rounded py-2 px-3 mr-3 bg-primary text-white">
-                                                    <div class="font-weight-bold mb-1">You <span>{{.Updated_at}}</span>
+                                                    <div class="font-weight-bold mb-1"><strong>You</strong>
+                                                        <span>{{.Updated_at}}</span>
                                                     </div>
                                                     <span id="msg-{{.Id}}">{{.Message_content}}</span>
+                                                    {{if eq .Message_type "image"}}
+                                                    <img src="/public/medias/{{.Media_file_name}}" alt=""
+                                                        class="media-show">
+                                                    {{else if eq .Message_type "video"}}
+                                                    <video src="/public/medias/{{.Media_file_name}}"
+                                                        class="media-show" controls></video>
+                                                    {{end}}
                                                 </div>
                                                 <div class="btn-group">
                                                     <button type="button" class="btn-more-message btn dropdown-toggle "
@@ -124,8 +132,10 @@
                                                         style="box-shadow: none;">
                                                     </button>
                                                     <ul class="dropdown-menu" style="min-width: fit-content; ">
+                                                        {{if eq .Message_type "message"}}
                                                         <li><a class="dropdown-item" onclick="editMessage({{.Id}})"><i
                                                                     class="bi bi-pencil-square"></i></a></li>
+                                                        {{end}}
                                                         <li><a class="dropdown-item" onclick="deleteMessage({{.Id}})"><i
                                                                     class="bi bi-trash"></i></a></li>
                                                     </ul>
@@ -134,10 +144,19 @@
                                             {{else}}
                                             <div class="chat-message-left pb-4">
                                                 <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
-                                                    <div class="font-weight-bold mb-1">{{.User_name}} <span
+                                                    <div class="font-weight-bold mb-1"><strong>{{.User_name}}</strong>
+                                                        <span
                                                             class="text-muted small text-nowrap mt-2">{{.Updated_at}}</span>
                                                     </div>
                                                     {{.Message_content}}
+                                                    {{if eq .Message_type "image"}}
+                                                    <img src="/public/medias/{{.Media_file_name}}" alt=""
+                                                        class="media-show">
+                                                    {{else if eq .Message_type "video"}}
+                                                    <video src="/public/medias/{{.Media_file_name}}"
+                                                        class="media-show" controls></video>
+                                                    {{end}}
+
                                                 </div>
                                             </div>
                                             {{end}}
@@ -180,129 +199,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
-    <script>
-        $('#box-message').scrollTop($('#box-message')[0].scrollHeight);
-
-        $("#btn-photo").click(function () {
-            $("#photo").click();
-        })
-        $("#btn-video").click(function () {
-            $("#video").click()
-        })
-        // click video
-        $("#video").change(function () {
-            let photo = $("#photo").val("");
-            let match = ["mp4", "mov"];
-            let ext = $(this).val().split('.').prop();
-            console.log(ext);
-            if (ext != match[0] && ext != match[1]) {
-                $("#video").val("");
-                alert("Error: File isn't video!!!")
-                return
-            }
-            console.log("clear.......");
-            console.log("photo:" + photo);
-            console.log("video:" + $("#video").val());
-        })
-
-        // click photo
-        $("#photo").change(function () {
-            let video = $("#video").val("");
-
-            let match = ["gif", "png", "image/jpg",];
-            let file_data = $('#photo').prop('files')[0];
-            let type = file_data.type;
-            if (type != match[0] && type == match[1] && type == match[2]) {
-                $("#photo").val("");
-                alert("Error: File isn't photo!!!")
-                return
-            }
-
-            console.log("clear.......");
-            console.log("Video:" + video);
-            console.log($("#photo").val());
-
-        })
-
-        // edit user name
-        $("#btn-edit-name").click(function () {
-            let nameEdit = $("#name-edit").val(), idUser = $("#id").val();
-            // Send the data using post
-            let posting = $.post("/edit-name", { id: idUser, name: nameEdit });
-
-            // Put the results in a div
-            posting.done(function (mes) {
-                alert(mes);
-                $("#btn-close-moda-edit-name").click();
-                $(".user-name").text(nameEdit);
-            });
-            posting.fail(function (request, status, error) {
-                alert(request.responseText);
-            });
-        })
-
-        // send message
-        $("#mesForm").submit(function (event) {
-            event.preventDefault();
-            let $form = $(this),
-                url = $form.attr("action"),
-                userId = $("#id").val(),
-                msg = $("#message-input").val(),
-                photo = $("#photo").val(),
-                video = $("#video").val();
-            let data = {};
-
-            if (url == "/chat/edit-message") {
-                let idMsg = $("#idMessage").val();
-                console.log(idMsg);
-                data = { idMessage: idMsg, newMessage: msg }
-            } else {
-                data = { id: userId, message: msg }
-            }
-            console.log(data);
-            let posting = $.post(url, data);
-
-            posting.done(function (mes) {
-                console.log(mes)
-                location.reload();
-            });
-            posting.fail(function (request, status, error) {
-                console.log(request.responseText);
-            });
-        })
-
-        // edit message
-        const editMessage = (id) => {
-            let message = $("#msg-" + id).text();
-            $("#message-input").val(message);
-            $("#mesForm").attr("action", "/chat/edit-message");
-            $("#idMessage").val(id);
-            $("#cancel-edit-message").attr('hidden', false);;
-        }
-
-        // button cancel edit message
-        $("#cancel-edit-message").click(function () {
-            $("#message-input").val("");
-            $("#mesForm").attr("action", "/chat/sent-message");
-            $("#idMessage").val("");
-            $("#cancel-edit-message").attr('hidden', true);;
-        })
-
-        // delete message
-        const deleteMessage = (id) => {
-            url= "/chat/delete-message"
-            let posting = $.post(url, {idMessage: id});
-
-            posting.done(function (mes) {
-                console.log(mes)
-                location.reload();
-            });
-            posting.fail(function (request, status, error) {
-                console.log(request.responseText);
-            });
-
-        }
-    </script>
+    <script src="/public/js/go-chat.js" ></script>
 </body>
 
 </html>
