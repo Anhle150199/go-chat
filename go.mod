@@ -10,4 +10,6 @@ require (
 	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
 )
 
-require github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+require github.com/dgrijalva/jwt-go v3.2.0+incompatible
+
+require github.com/nouney/randomstring v0.0.0-20180330205616-1374daa59f01 // indirect

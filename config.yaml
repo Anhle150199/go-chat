@@ -1,0 +1,18 @@
+service: go-chat
+runtime: go117
+main: .
+
+handlers:
+  - url: /public/css
+    static_dir: public/css
+
+  - url: /public/images
+    static_dir: public/images
+
+  - url: /public/js
+    static_dir: public/js
+
+  - url: /.*
+    secure: always
+    redirect_http_response_code: 301
+    script: auto

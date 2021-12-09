@@ -1,0 +1,11 @@
+.auth-box {
+    width: 50%;
+    margin: auto;
+    height: fit-content;
+    padding: 25px;
+    margin-top: 10%;
+}
+.link-redirect{
+    padding: 15px;
+    margin: 0;
+}

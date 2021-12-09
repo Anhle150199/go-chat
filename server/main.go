@@ -11,14 +11,13 @@ import (
 	_ "github.com/gorilla/mux"
 )
 func main()  {
-	fmt.Println("Starting server")
+	fmt.Println("Starting server 1.0.0")
 
 	database.ConnectDB()
 	
 
 	r := routes.Setup()
 	port:= ":80"
-
 	log.Println(fmt.Sprintf("server is running at: http://127.0.0.1%v", port))
 	log.Fatalln(http.ListenAndServe(port, r))
 
