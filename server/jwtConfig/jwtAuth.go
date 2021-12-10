@@ -15,7 +15,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func Create(idUser uint) (string, error) {
+func Create(idUser uint) (tokenString string, err error) {
 	expirationTime := time.Now().Add(120 * time.Hour)
 	claims := &Claims{
 		Id: idUser,
@@ -24,9 +24,8 @@ func Create(idUser uint) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
-
-	return tokenString, err
+	tokenString, err = token.SignedString(jwtKey)
+	return 
 }
 
 func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
@@ -35,7 +34,6 @@ func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
         log.Println( cookie.Name)
     }
 
-	// log.Println(c)
 	if err != nil {
 		log.Println("no cookie")
 		return models.User{}, err
@@ -43,7 +41,6 @@ func Verify(w http.ResponseWriter, r *http.Request) (models.User, error) {
 
 	// Get the JWT string from the cookie
 	tknStr := c.Value
-	// log.Println(tknStr)
 	claims := &Claims{}
 
 	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {

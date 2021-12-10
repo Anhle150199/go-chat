@@ -74,3 +74,14 @@ body {
     padding: 0;
     margin: 10px;
 }
+
+.box-stamp{
+    width: 62%;
+    height: 20vh;
+    bottom: 75px;
+    position: fixed;
+    margin: auto;
+    overflow-x: scroll;
+    display: flex;
+    background-color: whitesmoke;
+}

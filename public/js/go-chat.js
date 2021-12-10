@@ -1,47 +1,80 @@
-$('#box-message').scrollTop($('#box-message')[0].scrollHeight);
+$(function () {
+    // keep box message auto bottom
+    $('#box-message').scrollTop($('#box-message')[0].scrollHeight);
 
+    // load stamps list
+    for (let index = 1; index <= 24; index++) {
+        if (index < 10) {
+            index = "0" + index;
+        }
+        let srcStamp = "/public/medias/stamps/" + index + ".png";
+        $("#stamp-box").append("<button class=\"btn\" onclick=\"sentStamp('"+index+".png')\"><img src= " + srcStamp + "></button>")
+    }
+    // hide stamps list
+    $("#stamp-box").hide()
+    // show stamps list
+    $("#btn-stamp").click(function () {
+        $("#stamp-box").toggle()
+    });
+});
+
+// send Stamp
+const sentStamp = (id) => {
+    let request = $.post('/chat/sent-stamp', {stamp: id})
+
+    request.done(function () {
+        location.reload();
+    });
+
+    request.fail(function (request, status, error) {
+        alert(request.responseText);
+    });
+
+}
+
+// redirect from button photo to input tag
 $("#btn-photo").click(function () {
     $("#photo").click();
 })
+
+// redirect from button video to input tag
 $("#btn-video").click(function () {
     $("#video").click()
 })
-// click video
+
+// Upload video
 $("#video").change(function () {
-    let photo = $("#photo").val("");
+    $("#photo").val("");
     let match = ["video/mp4", "video/mov"];
     let file_data = $('#video').prop('files')[0];
-    let ext = file_data.type;
-    console.log(ext);
-    if (ext != match[0] && ext != match[1]) {
+    if (!match.includes(file_data.type)) {
         $("#video").val("");
-        alert("Error: File isn't video!!!")
+        alert("Error: File isn't video!!!");
         return
     }
     let file = $("#video")[0].files;
     sentFileMedia(file);
-
 })
 
-// click photo
+// Upload photo
 $("#photo").change(function () {
-    let video = $("#video").val("");
+    $("#video").val("");
 
-    let match = ["image/gif", "image/png", "image/jpg","image/jpeg"];
+    let match = ["image/gif", "image/png", "image/jpg", "image/jpeg"];
     let file_data = $('#photo').prop('files')[0];
-    let type = file_data.type;
-    console.log(type);
-    if (type != match[0] && type != match[1] && type != match[2] && type != match[3]) {
+
+    if (!match.includes(file_data.type)) {
         $("#photo").val("");
-        alert("Error: File isn't photo!!!")
+        alert("Error: File isn't image!!!");
         return
     }
 
     let file = $("#photo")[0].files;
-
     sentFileMedia(file);
 
 })
+
+// ajax sent file
 const sentFileMedia = (file) => {
     let fd = new FormData();
 
@@ -56,24 +89,25 @@ const sentFileMedia = (file) => {
             processData: false,
         });
         request.done(function (msg) {
-            console.log(msg)
+            console.log(msg);
             location.reload();
         });
 
         request.fail(function (request, status, error) {
-            console.log(request.responseText);
+            alert(request.responseText);
         });
     } else {
         alert("Please select a file.");
     }
 }
+
 // edit user name
 $("#btn-edit-name").click(function () {
-    let nameEdit = $("#name-edit").val(), idUser = $("#id").val();
-    // Send the data using post
+    let nameEdit = $("#name-edit").val(),
+        idUser = $("#id").val();
+
     let posting = $.post("/chat/edit-name", { id: idUser, name: nameEdit });
 
-    // Put the results in a div
     posting.done(function (mes) {
         alert(mes);
         $("#btn-close-moda-edit-name").click();
@@ -90,27 +124,24 @@ $("#mesForm").submit(function (event) {
     let $form = $(this),
         url = $form.attr("action"),
         userId = $("#id").val(),
-        msg = $("#message-input").val(),
-        photo = $("#photo").val(),
-        video = $("#video").val();
+        msg = $("#message-input").val();
     let data = {};
 
     if (url == "/chat/edit-message") {
         let idMsg = $("#idMessage").val();
-        console.log(idMsg);
-        data = { idMessage: idMsg, newMessage: msg }
+        data = { idMessage: idMsg, newMessage: msg };
     } else {
-        data = { id: userId, message: msg }
+        data = { id: userId, message: msg };
     }
-    console.log(data);
+
     let posting = $.post(url, data);
 
     posting.done(function (mes) {
-        console.log(mes)
+        console.log(mes);
         location.reload();
     });
     posting.fail(function (request, status, error) {
-        console.log(request.responseText);
+        alert(request.responseText);
     });
 })
 
@@ -133,15 +164,15 @@ $("#cancel-edit-message").click(function () {
 
 // delete message
 const deleteMessage = (id) => {
-    url = "/chat/delete-message"
+    url = "/chat/delete-message";
     let posting = $.post(url, { idMessage: id });
 
     posting.done(function (mes) {
-        console.log(mes)
+        console.log(mes);
         location.reload();
     });
     posting.fail(function (request, status, error) {
-        console.log(request.responseText);
+        alert(request.responseText);
     });
 
-}
+};

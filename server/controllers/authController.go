@@ -56,9 +56,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			Value:   token,
 			Path:    "/",
 			HttpOnly: true,
+			Secure: true,
 			Expires: time.Now().Add(120 * time.Hour),
 		})
-		// http.Redirect(w, r, "/", http.StatusMovedPermanently)
 		utils.JSON(w, 200, "Login Succesfully")
 
 	}
@@ -92,23 +92,22 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		password = models.Santize(password)
 
 		// check user exists
-		nameCheck, _ := models.FindUser("name", name, 1)
-		emailCheck, _ := models.FindUser("email", email, 1)
-
-		if nameCheck.Name == name || emailCheck.Email == email {
-			utils.JSON(w, 409, "User does exists")
+		if nameCheck, _ := models.FindUser("name", name, 1); nameCheck.Name == name {
+			utils.JSON(w, 409, "User name does exists")
+			return
+		}
+		if emailCheck, _ := models.FindUser("email", email, 1); emailCheck.Email == email {
+			utils.JSON(w, 409, "Email does exists")
 			return
 		}
 
 		hashedPassword, err := models.Hash(password)
-
 		if err != nil {
 			utils.JSON(w, 500, "Register has failed: PassErr")
 			return
 		}
 
 		err = models.CreateUser(name, email, hashedPassword)
-
 		if err != nil {
 			utils.JSON(w, 500, "Register has failed: Create Err")
 			fmt.Fprintln(w, err)

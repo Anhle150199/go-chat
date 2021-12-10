@@ -18,39 +18,37 @@ type Messages struct {
 	Updated_at      time.Time `json:"updated_at" db:"updated_at"`
 }
 
-func GetAllMessage() ([]Messages, error) {
-	message := []Messages{}
-	err := database.DB.Select(&message, "SELECT * FROM messages")
-	return message, err
+func GetAllMessage() (message []Messages, err error) {
+	err = database.DB.Select(&message, "SELECT * FROM messages")
+	return
 }
 
-func GetOneMessage(id string) (Messages, error) {
-	message:= Messages{}
-	err := database.DB.Get(&message, "SELECT * FROM messages WHERE id = ?", id)
-	return message, err
+func GetOneMessage(id string) (message Messages, err error) {
+	err = database.DB.Get(&message, "SELECT * FROM messages WHERE id = ?", id)
+	return 
 }
 
-func InsertMessage(userId, userName, message string) error {
-	_, err := database.DB.Exec("INSERT INTO messages (user_id, user_name, message_type, message_content, media_file_name) VALUES (?,?,\"message\", ?, \"\")", userId, userName, message)
-	return err
+func InsertMessage(userId, userName, message string) (err error) {
+	_, err = database.DB.Exec("INSERT INTO messages (user_id, user_name, message_type, message_content, media_file_name) VALUES (?,?,\"message\", ?, \"\")", userId, userName, message)
+	return 
 }
 
-func UploadFile(userId, userName, fileName, fileType string) error {
-	_, err := database.DB.Exec("INSERT INTO messages (user_id, user_name, message_type, message_content, media_file_name) VALUES (?,?,?,\"\", ?)", userId, userName, fileType, fileName)
-	return err
+func UploadFile(userId, userName, fileName, fileType string) (err error) {
+	_, err = database.DB.Exec("INSERT INTO messages (user_id, user_name, message_type, message_content, media_file_name) VALUES (?,?,?,\"\", ?)", userId, userName, fileType, fileName)
+	return
 }
 
-func EditUserNameMessage(id, col, value string) error {
-	_, err := database.DB.Exec("UPDATE messages SET "+col+"=? WHERE user_id=?", value, id)
-	return err
+func EditUserNameMessage(id, col, value string) (err error) {
+	_, err = database.DB.Exec("UPDATE messages SET "+col+"=? WHERE user_id=?", value, id)
+	return
 }
 
-func EditMessage(id, col, value string) error {
-	_, err := database.DB.Exec("UPDATE messages SET "+col+"=? WHERE id=?", value, id)
-	return err
+func EditMessage(id, col, value string) (err error) {
+	_, err = database.DB.Exec("UPDATE messages SET "+col+"=? WHERE id=?", value, id)
+	return 
 }
 
-func DeleteMessage(id string) error {
-	_, err := database.DB.Exec("DELETE FROM messages WHERE id=?", id)
-	return err
+func DeleteMessage(id string) (err error) {
+	_, err = database.DB.Exec("DELETE FROM messages WHERE id=?", id)
+	return 
 }
