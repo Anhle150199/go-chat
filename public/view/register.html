@@ -48,26 +48,7 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     <script>
-        $("#form-register").submit(function (event) {
-            event.preventDefault();
-            var $form = $(this),
-                name = $form.find("input[name='username']").val(),
-                email = $form.find("input[name='email']").val(),
-                password = $form.find("input[name='password']").val(),
-                url = $form.attr("action");
-            let data = { name: name, email: email, password: password }
-            console.log(data);
-            var posting = $.post(url, data);
-            posting.done(function (mes) {
-                // console.log(mes)
-                alert(mes)
-                window.location.href = '/user/login'
-            });
-            posting.fail(function (request, status, error) {
-                alert(request.responseText);
-            });s
 
-        });
     </script>
 </body>
 

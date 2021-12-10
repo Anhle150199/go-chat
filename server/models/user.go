@@ -4,14 +4,10 @@ import (
 	_ "database/sql"
 	"strconv"
 	"time"
-
-	"github.com/go-chat/server/database"
-	// "github.com/jmoiron/sqlx"
-
 	"html"
 	"strings"
-
 	"golang.org/x/crypto/bcrypt"
+	"github.com/go-chat/server/database"
 )
 
 type User struct {
@@ -23,23 +19,20 @@ type User struct {
 	Updated_at time.Time `json:"updated_at" db:"updated_at"`
 }
 
-func FindUser(col, value string, limit int) (User, error) {
-	user := User{}
-	var err error
+func FindUser(col, value string, limit int) (user User, err error) {
 	if limit < 1 {
 		err = database.DB.Get(&user, "SELECT * FROM users WHERE "+col+" = ?", value)
 	} else {
 		err = database.DB.Get(&user, "SELECT * FROM users WHERE "+col+" = ? LIMIT "+strconv.Itoa(limit), value)
 	}
-
-	return user, err
+	return 
 }
-func CreateUser(name, email, password string) error {
-	_, err := database.DB.Exec("INSERT INTO users (name, email, password) VALUES (?,?,?)", name, email, password)
-	return err
+func CreateUser(name, email, password string) (err error) {
+	_, err = database.DB.Exec("INSERT INTO users (name, email, password) VALUES (?,?,?)", name, email, password)
+	return
 }
-func EditUserName(name string, id string) (error) {
-	_, err := database.DB.Exec("UPDATE users SET name=? WHERE id=?", name, id)
+func EditUserName(name string, id string) (err error) {
+	_, err = database.DB.Exec("UPDATE users SET name=? WHERE id=?", name, id)
 	return err
 }
 func Hash(password string) (string, error) {
