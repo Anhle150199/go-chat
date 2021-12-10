@@ -6,42 +6,40 @@ $("#btn-photo").click(function () {
 $("#btn-video").click(function () {
     $("#video").click()
 })
+
 // click video
 $("#video").change(function () {
-    let photo = $("#photo").val("");
+    $("#photo").val("");
     let match = ["video/mp4", "video/mov"];
     let file_data = $('#video').prop('files')[0];
-    let ext = file_data.type;
-    console.log(ext);
-    if (ext != match[0] && ext != match[1]) {
+    if (!match.includes(file_data.type)) {
         $("#video").val("");
-        alert("Error: File isn't video!!!")
+        alert("Error: File isn't video!!!");
         return
     }
     let file = $("#video")[0].files;
     sentFileMedia(file);
-
 })
 
 // click photo
 $("#photo").change(function () {
-    let video = $("#video").val("");
+    $("#video").val("");
 
-    let match = ["image/gif", "image/png", "image/jpg","image/jpeg"];
+    let match = ["image/gif", "image/png", "image/jpg", "image/jpeg"];
     let file_data = $('#photo').prop('files')[0];
-    let type = file_data.type;
-    console.log(type);
-    if (type != match[0] && type != match[1] && type != match[2] && type != match[3]) {
+
+    if (!match.includes(file_data.type)) {
         $("#photo").val("");
-        alert("Error: File isn't photo!!!")
+        alert("Error: File isn't image!!!");
         return
     }
 
     let file = $("#photo")[0].files;
-
     sentFileMedia(file);
 
 })
+
+// ajax sent file
 const sentFileMedia = (file) => {
     let fd = new FormData();
 
@@ -56,12 +54,12 @@ const sentFileMedia = (file) => {
             processData: false,
         });
         request.done(function (msg) {
-            console.log(msg)
+            console.log(msg);
             location.reload();
         });
 
         request.fail(function (request, status, error) {
-            console.log(request.responseText);
+            alert(request.responseText);
         });
     } else {
         alert("Please select a file.");
@@ -69,11 +67,11 @@ const sentFileMedia = (file) => {
 }
 // edit user name
 $("#btn-edit-name").click(function () {
-    let nameEdit = $("#name-edit").val(), idUser = $("#id").val();
-    // Send the data using post
+    let nameEdit = $("#name-edit").val(),
+        idUser = $("#id").val();
+
     let posting = $.post("/chat/edit-name", { id: idUser, name: nameEdit });
 
-    // Put the results in a div
     posting.done(function (mes) {
         alert(mes);
         $("#btn-close-moda-edit-name").click();
@@ -90,27 +88,24 @@ $("#mesForm").submit(function (event) {
     let $form = $(this),
         url = $form.attr("action"),
         userId = $("#id").val(),
-        msg = $("#message-input").val(),
-        photo = $("#photo").val(),
-        video = $("#video").val();
+        msg = $("#message-input").val();
     let data = {};
 
     if (url == "/chat/edit-message") {
         let idMsg = $("#idMessage").val();
-        console.log(idMsg);
-        data = { idMessage: idMsg, newMessage: msg }
+        data = { idMessage: idMsg, newMessage: msg };
     } else {
-        data = { id: userId, message: msg }
+        data = { id: userId, message: msg };
     }
-    console.log(data);
+
     let posting = $.post(url, data);
 
     posting.done(function (mes) {
-        console.log(mes)
+        console.log(mes);
         location.reload();
     });
     posting.fail(function (request, status, error) {
-        console.log(request.responseText);
+        alert(request.responseText);
     });
 })
 
@@ -133,15 +128,15 @@ $("#cancel-edit-message").click(function () {
 
 // delete message
 const deleteMessage = (id) => {
-    url = "/chat/delete-message"
+    url = "/chat/delete-message";
     let posting = $.post(url, { idMessage: id });
 
     posting.done(function (mes) {
-        console.log(mes)
+        console.log(mes);
         location.reload();
     });
     posting.fail(function (request, status, error) {
-        console.log(request.responseText);
+        alert(request.responseText);
     });
 
-}
+};

@@ -176,11 +176,11 @@ func DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if message.Media_file_name != "" {
-		err = os.Remove("public/medias/" + message.Media_file_name)
-		if err != nil {
-			utils.JSON(w, 400, err)
-			return
-		}
+		os.Remove("public/medias/" + message.Media_file_name)
+		// if err != nil {
+		// 	utils.JSON(w, 400, err)
+		// 	return
+		// }
 	}
 
 	err = models.DeleteMessage(idMessage)
