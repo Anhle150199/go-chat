@@ -1,13 +1,48 @@
-$('#box-message').scrollTop($('#box-message')[0].scrollHeight);
+$(function () {
+    // keep box message auto bottom
+    $('#box-message').scrollTop($('#box-message')[0].scrollHeight);
 
+    // load stamps list
+    for (let index = 1; index <= 24; index++) {
+        if (index < 10) {
+            index = "0" + index;
+        }
+        let srcStamp = "/public/medias/stamps/" + index + ".png";
+        $("#stamp-box").append("<button class=\"btn\" onclick=\"sentStamp('"+index+".png')\"><img src= " + srcStamp + "></button>")
+    }
+    // hide stamps list
+    $("#stamp-box").hide()
+    // show stamps list
+    $("#btn-stamp").click(function () {
+        $("#stamp-box").toggle()
+    });
+});
+
+// send Stamp
+const sentStamp = (id) => {
+    let request = $.post('/chat/sent-stamp', {stamp: id})
+
+    request.done(function () {
+        location.reload();
+    });
+
+    request.fail(function (request, status, error) {
+        alert(request.responseText);
+    });
+
+}
+
+// redirect from button photo to input tag
 $("#btn-photo").click(function () {
     $("#photo").click();
 })
+
+// redirect from button video to input tag
 $("#btn-video").click(function () {
     $("#video").click()
 })
 
-// click video
+// Upload video
 $("#video").change(function () {
     $("#photo").val("");
     let match = ["video/mp4", "video/mov"];
@@ -21,7 +56,7 @@ $("#video").change(function () {
     sentFileMedia(file);
 })
 
-// click photo
+// Upload photo
 $("#photo").change(function () {
     $("#video").val("");
 
@@ -65,6 +100,7 @@ const sentFileMedia = (file) => {
         alert("Please select a file.");
     }
 }
+
 // edit user name
 $("#btn-edit-name").click(function () {
     let nameEdit = $("#name-edit").val(),

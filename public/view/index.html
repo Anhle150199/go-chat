@@ -106,12 +106,12 @@
                             <tr>
                                 <td>
                                     <div class="position-relative">
-                                        <div class="chat-messages p-4" id="box-message">
+                                        <div class="chat-messages p-4 " id="box-message">
 
                                             {{range .allMessage}}
                                             {{if eq .User_id $.userId}}
                                             <div class="chat-message-right pb-4" id="box-message-{{.Id}}">
-                                                <div class="flex-shrink-1 rounded py-2 px-3 mr-3 bg-primary text-white">
+                                                <div class="flex-shrink-1 rounded shadow py-2 px-3 mr-3 bg-primary text-white">
                                                     <div class="font-weight-bold mb-1"><strong>You</strong>
                                                         <span>{{.Updated_at}}</span>
                                                     </div>
@@ -122,6 +122,9 @@
                                                     {{else if eq .Message_type "video"}}
                                                     <video src="/public/medias/{{.Media_file_name}}" class="media-show"
                                                         controls></video>
+                                                    {{else if eq .Message_type "stamps"}}
+                                                    <img src="/public/medias/stamps/{{.Media_file_name}}"
+                                                        class="media-show">
                                                     {{end}}
                                                 </div>
                                                 <div class="btn-group">
@@ -142,7 +145,7 @@
                                             </div>
                                             {{else}}
                                             <div class="chat-message-left pb-4">
-                                                <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
+                                                <div class="flex-shrink-1 bg-light shadow rounded py-2 px-3 ml-3">
                                                     <div class="font-weight-bold mb-1"><strong>{{.User_name}}</strong>
                                                         <span
                                                             class="text-muted small text-nowrap mt-2">{{.Updated_at}}</span>
@@ -154,8 +157,10 @@
                                                     {{else if eq .Message_type "video"}}
                                                     <video src="/public/medias/{{.Media_file_name}}" class="media-show"
                                                         controls></video>
+                                                    {{else if eq .Message_type "stamps"}}
+                                                    <img src="/public/medias/stamps/{{.Media_file_name}}"
+                                                        class="media-show">
                                                     {{end}}
-
                                                 </div>
                                             </div>
                                             {{end}}
@@ -172,7 +177,7 @@
                                     <div class="btn-group" role="group" aria-label="">
                                         <button class="btn" id="btn-photo"><i class="bi bi-image"></i></button>
                                         <button class="btn" id="btn-video"><i class="bi bi-camera-video"></i></button>
-                                        <button class="btn" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-stickies"></i></button>
+                                        <button class="btn" id="btn-stamp"><i class="bi bi-stickies"></i></button>
                                     </div>
                                     <button class="btn float-end" id="cancel-edit-message" hidden><i
                                             class="bi bi-x-circle-fill text-danger"></i></button>
@@ -189,24 +194,9 @@
                                             id="message-input">
                                         <button class="btn btn-primary"><i class="bi bi-send"></i></button>
                                     </form>
-                                    <div class="btn-group" hidden>
-                                        <button type="button" class="btn btn-secondary " id="btn-stamp"
-                                            >
-                                            Stamp
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end ">
-                                            <div class="d-flex flex-row" style="width: 200px; height: 500px; overflow: auto;">
-                                                <li><button class="dropdown-item" type="button">Action</button></li>
-                                                <li><button class="dropdown-item" type="button">Another action</button>
-                                                </li>
-                                                <li><button class="dropdown-item" type="button">Something else
-                                                        here</button>
-                                                </li>
-                                            </div>
+                                    <div class="box-stamp" id="stamp-box">
 
-                                        </ul>
                                     </div>
-
                                 </td>
                             </tr>
                         </table>
@@ -221,6 +211,7 @@
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
         crossorigin="anonymous"></script>
     <script src="/public/js/go-chat.js"></script>
+
 </body>
 
 </html>

@@ -32,6 +32,7 @@ func Setup() *mux.Router {
 	chatRouter.HandleFunc("/edit-message", controllers.EditMessage).Methods("POST")
 	chatRouter.HandleFunc("/delete-message", controllers.DeleteMessage).Methods("POST")
 	chatRouter.HandleFunc("/upload-media", controllers.UploadFile).Methods("POST")
+	chatRouter.HandleFunc("/sent-stamp", controllers.SentStamp).Methods("POST")
 
 	return r
 }

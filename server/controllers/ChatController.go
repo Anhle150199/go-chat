@@ -88,7 +88,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	log.Println("Uploading .....")
 	// 32 MB is the default used by FormFile
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utils.ERROR(w, 401, err)
 		return
 	}
 
@@ -99,9 +99,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	log.Printf("Uploaded File: %+v\n", handler.Filename)
-	log.Printf("File Size: %+v\n", handler.Size)
-	log.Printf("MIME Header: %+v\n", handler.Header)
+	// log.Printf("Uploaded File: %+v\n", handler.Filename)
+	// log.Printf("File Size: %+v\n", handler.Size)
+	// log.Printf("MIME Header: %+v\n", handler.Header)
 
 	err = os.MkdirAll("public/medias", os.ModePerm)
 	if err != nil {
@@ -134,13 +134,29 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		utils.JSON(w, 400, err)
 		return
 	}
+
+	// add new file to database
 	err = models.UploadFile(strconv.Itoa(int(user.Id)), user.Name, mediaFileName, messageType)
 	if err != nil {
 		utils.JSON(w, 400, err)
 		return
 	}
 	utils.JSON(w, 200, "Upload Succesfully")
+}
 
+// Send Stamp 
+func SentStamp(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("User").(models.User)
+	r.ParseForm()
+	stampFile := r.PostFormValue("stamp")
+	stampFile = models.Santize(stampFile)
+	log.Println("stamp id :    ",stampFile)
+	err := models.UploadFile(strconv.Itoa(int(user.Id)), user.Name, stampFile, "stamps")
+	if err != nil {
+		utils.ERROR(w, 400, err)
+		return
+	}
+	utils.JSON(w, 200, "Upload Succesfully")
 }
 
 // Edit content message
@@ -152,8 +168,8 @@ func EditMessage(w http.ResponseWriter, r *http.Request) {
 
 	idMessage = models.Santize(idMessage)
 	newMessage = models.Santize(newMessage)
-	log.Println("id Mess: ", idMessage)
-	log.Println("new mess", newMessage)
+	// log.Println("id Mess: ", idMessage)
+	// log.Println("new mess", newMessage)
 	err := models.EditMessage(idMessage, "message_content", newMessage)
 	if err != nil {
 		utils.JSON(w, 400, err)
@@ -177,10 +193,6 @@ func DeleteMessage(w http.ResponseWriter, r *http.Request) {
 
 	if message.Media_file_name != "" {
 		os.Remove("public/medias/" + message.Media_file_name)
-		// if err != nil {
-		// 	utils.JSON(w, 400, err)
-		// 	return
-		// }
 	}
 
 	err = models.DeleteMessage(idMessage)
@@ -189,5 +201,4 @@ func DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.JSON(w, 200, "Delete Succesfully")
-
 }
